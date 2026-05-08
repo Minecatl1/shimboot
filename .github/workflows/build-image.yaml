@@ -1,17 +1,44 @@
 name: build-image
 run-name: Build the shimboot disk image for all boards
-on: [push]
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      board:
+        description: 'Board name (e.g., cyan)'
+        required: true
+        default: 'cyan'
+      desktop:
+        description: 'Desktop environment (e.g., xfce, gnome, lxqt , none)'
+        required: false
+        default: ''
+      distro:
+        description: 'Distro to use for chroot/build (e.g., ubuntu, debian)'
+        required: false
+        default: 'debian'
+      arch:
+        description: 'Architecture (e.g., amd64, arm64, x86_64)'
+        required: false
+        default: 'x86_64'
+      release:
+        description: 'Distro release'
+        required: false
+        default: ''
+
 
 jobs:
   build:
     permissions:
       contents: write
 
-    strategy: 
-      matrix:
-        board: [dedede, octopus, coral, grunt, nissa, zork, corsola, jacuzzi, hatch, snappy, hana]
-
     runs-on: ubuntu-latest
+    env:
+      BOARD: ${{ github.event.inputs.board }}
+      DESKTOP: ${{ github.event.inputs.desktop || '' }}
+      DISTRO: ${{ github.event.inputs.distro || 'debian' }}
+      ARCH: ${{ github.event.inputs.arch || 'x86_64' }}
+      RELEASE: ${{ github.event.inputs.release }}
     steps:
       - name: remove snap
         uses: ading2210/gh-actions-remove-snap@v1
@@ -34,13 +61,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
-          sudo DEBUG=1 ./build_complete.sh ${{ matrix.board }} compress_img=1 quiet=1
+          sudo DEBUG=1 ./build_complete.sh ${{ env.BOARD }} compress_img=1 quiet=1 desktop=${{ env.DESKTOP }} arch=${{ env.ARCH }} distro=${{ env.DISTRO }} release=${{ env.RELEASE }} 
 
       - name: upload img
         uses: actions/upload-artifact@v4
         with:
-          name: shimboot_${{ matrix.board }}
-          path: data/shimboot_${{ matrix.board }}.bin
+          name: shimboot_${{ env.BOARD }}
+          path: data/shimboot_${{ env.BOARD }}.bin
           compression-level: 7
   
       - name: create release
@@ -48,4 +75,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: data/shimboot_${{ matrix.board }}.zip
+          files: data/shimboot_${{ env.BOARD }}.zip
