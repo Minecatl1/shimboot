@@ -12,7 +12,7 @@ on:
       desktop:
         description: 'Desktop environment (e.g., xfce, gnome, lxqt , none)'
         required: false
-        default: ''
+        default: 'lxqt'
       distro:
         description: 'Distro to use for chroot/build (e.g., ubuntu, debian)'
         required: false
@@ -24,7 +24,7 @@ on:
       release:
         description: 'Distro release'
         required: false
-        default: ''
+        default: 'trixie'
 
 
 jobs:
