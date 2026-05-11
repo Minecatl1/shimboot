@@ -56,6 +56,9 @@ if [ "$(need_remount "$rootfs_dir")" ]; then
 fi
 
 if [ "$distro" = "debian" ]; then
+  sudo apt install debian-keyring-archive
+  sudo mkdir "$rootfs_dir/usr/share/keyrings"
+  sudo cp /usr/share/keyrings/debian-archive-keyring.gpg "$rootfs_dir/usr/share/keyrings/debian-archive-keyring.gpg"
   print_info "bootstraping debian chroot"
   debootstrap --arch $arch --components=main,contrib,non-free,non-free-firmware "$release_name" "$rootfs_dir" http://deb.debian.org/debian/
   chroot_script="/opt/setup_rootfs.sh"
