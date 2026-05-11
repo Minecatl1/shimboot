@@ -1,46 +1,53 @@
 name: build-image
-run-name: Build the shimboot disk image for all boards
+run-name: Build shimboot disk image for ${{ inputs.board || 'cyan' }}
+
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       board:
         description: 'Board name (e.g., cyan)'
         required: true
-        default: 'cyan'
+        default: cyan
       desktop:
-        description: 'Desktop environment (e.g., xfce, gnome, lxqt , none)'
+        description: 'Desktop environment (e.g., xfce, gnome, lxqt, none)'
         required: false
-        default: 'lxqt'
+        default: lxqt
       distro:
         description: 'Distro to use for chroot/build (e.g., ubuntu, debian)'
         required: false
-        default: 'debian'
+        default: debian
       arch:
         description: 'Architecture (e.g., amd64, arm64, x86_64)'
         required: false
-        default: 'x86_64'
+        default: x86_64
       release:
         description: 'Distro release'
         required: false
-        default: 'trixie'
+        default: trixie
 
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build shimboot image
     permissions:
       contents: write
-
     runs-on: ubuntu-latest
     env:
-      BOARD: ${{ github.event.inputs.board }}
-      DESKTOP: ${{ github.event.inputs.desktop || '' }}
-      DISTRO: ${{ github.event.inputs.distro || 'debian' }}
-      ARCH: ${{ github.event.inputs.arch || 'x86_64' }}
-      RELEASE: ${{ github.event.inputs.release }}
+      BOARD: ${{ inputs.board || 'cyan' }}
+      DESKTOP: ${{ inputs.desktop || 'lxqt' }}
+      DISTRO: ${{ inputs.distro || 'debian' }}
+      ARCH: ${{ inputs.arch || 'x86_64' }}
+      RELEASE: ${{ inputs.release || 'trixie' }}
     steps:
-      - name: remove snap
+      - name: Remove snap
         uses: ading2210/gh-actions-remove-snap@v1
         with:
           disable_man_db: 'true'
@@ -54,23 +61,24 @@ jobs:
           remove-android: 'true'
           remove-haskell: 'true'
 
-      - name: download repo
+      - name: Download repository
         uses: actions/checkout@v4
-      
-      - name: run build
+
+      - name: Run build
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
-          sudo DEBUG=1 ./build_complete.sh ${{ env.BOARD }} compress_img=1 quiet=1 desktop=${{ env.DESKTOP }} arch=${{ env.ARCH }} distro=${{ env.DISTRO }} release=${{ env.RELEASE }} 
+          sudo env DEBUG=1 ./build_complete.sh "${BOARD}" compress_img=1 quiet=1 desktop="${DESKTOP}" arch="${ARCH}" distro="${DISTRO}" release="${RELEASE}"
 
-      - name: upload img
+      - name: Upload image
         uses: actions/upload-artifact@v4
         with:
           name: shimboot_${{ env.BOARD }}
           path: data/shimboot_${{ env.BOARD }}.bin
           compression-level: 7
-  
-      - name: create release
+          if-no-files-found: error
+
+      - name: Create release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
