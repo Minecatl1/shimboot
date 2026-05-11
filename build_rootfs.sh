@@ -57,7 +57,7 @@ fi
 
 if [ "$distro" = "debian" ]; then
   sudo apt update -y
-  sudo apt install debian-keyring-archive -y
+  wget http://http.us.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2025.1_all.deb && sudo dpkg -i debian-archive-keyring_2025.1_all.deb && rm debian-archive-keyring_2025.1_all.deb
   sudo mkdir "$rootfs_dir/usr/share/keyrings"
   sudo cp /usr/share/keyrings/debian-archive-keyring.gpg "$rootfs_dir/usr/share/keyrings/debian-archive-keyring.gpg"
   print_info "bootstraping debian chroot"
