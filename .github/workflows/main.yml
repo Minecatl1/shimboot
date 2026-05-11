@@ -1,14 +1,10 @@
-name: build-image
+name: build-image-og
 run-name: Build the shimboot disk image for all boards
 on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
     inputs:
-      board:
-        description: 'Board name (e.g., cyan)'
-        required: true
-        default: 'cyan'
       desktop:
         description: 'Desktop environment (e.g., xfce, gnome, lxqt , none)'
         required: false
@@ -33,11 +29,10 @@ jobs:
 
     strategy: 
       matrix:
-        board: [dedede, octopus, coral, grunt, nissa, cyan, corsola, jacuzzi, hatch, snappy, hana]
+        board: [dedede, cyan, corsola, coral]
 
     runs-on: ubuntu-latest
     env:
-      BOARD: ${{ github.event.inputs.board }}
       DESKTOP: ${{ github.event.inputs.desktop || '' }}
       DISTRO: ${{ github.event.inputs.distro || 'debian' }}
       ARCH: ${{ github.event.inputs.arch || 'x86_64' }}
