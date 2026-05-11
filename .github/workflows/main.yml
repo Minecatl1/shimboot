@@ -60,6 +60,7 @@ jobs:
           sudo apt autoremove -y
           sudo apt-get update
           sudo apt-get upgrade -y
+          sudo apt-get install zstd -y
           sudo DEBUG=1 ./build_complete.sh ${{ matrix.board }} compress_img=1 quiet=1 desktop=${{ env.DESKTOP }} arch=${{ env.ARCH }} distro=${{ env.DISTRO }} release=${{ env.RELEASE }}
 
       - name: upload img
