@@ -274,7 +274,7 @@ if [ ! "$rootfs_dir" ]; then
     hostname=shimboot-$board \
     username=user \
     user_passwd=user \
-    arch=$arch \
+    arch=amd64 \
     distro=$distro
 fi
 
