@@ -29,7 +29,7 @@ jobs:
 
     strategy: 
       matrix:
-        board: [dedede, cyan, corsola, coral]
+        board: [dedede, cyan, coral]
 
     runs-on: ubuntu-latest
     env:
