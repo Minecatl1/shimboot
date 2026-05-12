@@ -33,10 +33,10 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      DESKTOP: ${{ github.event.inputs.desktop || '' }}
+      DESKTOP: ${{ github.event.inputs.desktop || 'kde' }}
       DISTRO: ${{ github.event.inputs.distro || 'debian' }}
-      ARCH: ${{ github.event.inputs.arch || 'x86_64' }}
-      RELEASE: ${{ github.event.inputs.release }}
+      ARCH: ${{ github.event.inputs.arch || 'amd64' }}
+      RELEASE: ${{ github.event.inputs.release || 'trixie' }}
     steps:
       - name: remove snap
         uses: ading2210/gh-actions-remove-snap@v1
