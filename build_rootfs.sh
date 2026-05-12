@@ -57,6 +57,8 @@ fi
 
 if [ "$distro" = "debian" ]; then
   sudo apt update -y
+  sudo apt-get update -y
+  sudo apt-get install -y debootstrap dpkg tar
   wget http://http.us.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2025.1_all.deb && sudo dpkg -i debian-archive-keyring_2025.1_all.deb && rm debian-archive-keyring_2025.1_all.deb
   sudo mkdir "$rootfs_dir" || true
   sudo mkdir "$rootfs_dir/usr" || true
@@ -64,7 +66,7 @@ if [ "$distro" = "debian" ]; then
   sudo mkdir "$rootfs_dir/usr/share/keyrings" || true
   sudo cp /usr/share/keyrings/debian-archive-keyring.gpg "$rootfs_dir/usr/share/keyrings/debian-archive-keyring.gpg" || true
   print_info "bootstraping debian chroot"
-  debootstrap --arch $arch --components=main,contrib,non-free,non-free-firmware "$release_name" "$rootfs_dir" http://deb.debian.org/debian/
+  sudo debootstrap --arch $arch --components=main,contrib,non-free,non-free-firmware "$release_name" "$rootfs_dir" http://deb.debian.org/debian/
   chroot_script="/opt/setup_rootfs.sh"
 
 elif [ "$distro" = "ubuntu" ]; then 
