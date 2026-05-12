@@ -64,9 +64,9 @@ if [ "$distro" = "debian" ]; then
   sudo mkdir "$rootfs_dir/usr" || true
   sudo mkdir "$rootfs_dir/usr/share" || true
   sudo mkdir "$rootfs_dir/usr/share/keyrings" || true
-  sudo cp /usr/share/keyrings/debian-archive-keyring.gpg "$rootfs_dir/usr/share/keyrings/debian-archive-keyring.gpg" || true
   print_info "bootstraping debian chroot"
-  sudo debootstrap --arch $arch --components=main,contrib,non-free,non-free-firmware --verbose --no-check-gpg --include=debian-archive-keyring "$release_name" "$rootfs_dir" http://deb.debian.org/debian/
+  sudo rm -rf "$rootfs_dir/usr/share/keyrings/debian-archive-keyring.pgp" || true
+  sudo debootstrap --arch $arch --components=main,contrib,non-free,non-free-firmware --keyring=/usr/share/keyrings/debian-archive-keyring.gpg --verbose --no-check-gpg --include=debian-archive-keyring "$release_name" "$rootfs_dir" http://deb.debian.org/debian/
   chroot_script="/opt/setup_rootfs.sh"
 
 elif [ "$distro" = "ubuntu" ]; then 
