@@ -73,7 +73,7 @@ safe_mount() {
   rm -rf $dest
   mkdir -p $dest
   if [ "$opts" ]; then
-    mount $source $dest -o $opts
+    mount $source $dest -o $opts || /bin/true
   else
     mount $source $dest
   fi
@@ -139,7 +139,7 @@ populate_partitions() {
   fi
 
   if [ "$quiet" ]; then
-    cp -ar $rootfs_dir/* $rootfs_mount
+    cp -ar $rootfs_dir/* $rootfs_mount 
   else
     copy_progress $rootfs_dir $rootfs_mount
   fi

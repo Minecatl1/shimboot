@@ -18,17 +18,16 @@ copy_modules() {
   local reco_rootfs=$(realpath -m $2)
   local target_rootfs=$(realpath -m $3)
 
-  rm -rf "${target_rootfs}/lib/modules"
-  cp -r "${shim_rootfs}/lib/modules" "${target_rootfs}/lib/modules"
+  cp -r "${shim_rootfs}/lib/modules" "${target_rootfs}/lib/modules" || true
 
   mkdir -p "${target_rootfs}/lib/firmware"
-  cp -r --remove-destination "${shim_rootfs}/lib/firmware/"* "${target_rootfs}/lib/firmware/"
-  cp -r --remove-destination "${reco_rootfs}/lib/firmware/"* "${target_rootfs}/lib/firmware/"
+  cp -r --remove-destination "${shim_rootfs}/lib/firmware/"* "${target_rootfs}/lib/firmware/" || true
+  cp -r --remove-destination "${reco_rootfs}/lib/firmware/"* "${target_rootfs}/lib/firmware/" || true
 
   mkdir -p "${target_rootfs}/lib/modprobe.d/"
   mkdir -p "${target_rootfs}/etc/modprobe.d/"
-  cp -r "${reco_rootfs}/lib/modprobe.d/"* "${target_rootfs}/lib/modprobe.d/"
-  cp -r "${reco_rootfs}/etc/modprobe.d/"* "${target_rootfs}/etc/modprobe.d/"
+  cp -r "${reco_rootfs}/lib/modprobe.d/"* "${target_rootfs}/lib/modprobe.d/" || true
+  cp -r "${reco_rootfs}/etc/modprobe.d/"* "${target_rootfs}/etc/modprobe.d/" || true
 
   #decompress kernel modules if necessary - debian won't recognize these otherwise
   local compressed_files="$(find "${target_rootfs}/lib/modules" -name '*.gz')"
@@ -36,7 +35,7 @@ copy_modules() {
     echo "$compressed_files" | xargs gunzip
     for kernel_dir in "$target_rootfs/lib/modules/"*; do
       local version="$(basename "$kernel_dir")"
-      depmod -b "$target_rootfs" "$version"
+      depmod -b "$target_rootfs" "$version"  || true
     done
   fi
 }
