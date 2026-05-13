@@ -1,0 +1,13 @@
+.git
+.gitignore
+data
+*.bin
+*.img
+*.iso
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.xz
+*.zst
+*.qcow2
