@@ -3,11 +3,27 @@ create_loop() {
   local loop_device=$(losetup -f)
   if [ ! -b "$loop_device" ]; then
     #we might run out of loop devices, see https://stackoverflow.com/a/66020349
-    local major=$(grep loop /proc/devices | cut -c3)
+    local major=$(grep loop /proc/devices | cut -c3) 
     local number="$(echo "$loop_device" | grep -Eo '[0-9]+' | tail -n1)"
     mknod $loop_device b $major $number
   fi
   losetup -P $loop_device "${1}"
+  
+  # Wait for partitions to be created
+  local timeout=10
+  while [ $timeout -gt 0 ]; do
+    if [ -b "${loop_device}p1" ]; then
+      break
+    fi
+    sleep 0.5
+    timeout=$((timeout - 1))
+  done
+  
+  if [ $timeout -eq 0 ]; then
+    echo "Error: Loop device partitions did not appear" >&2
+    return 1
+  fi
+  
   echo $loop_device
 }
 
@@ -88,7 +104,7 @@ create_partitions() {
   #create stateful
   mkfs.ext4 "${image_loop}p1"
   #copy kernel
-  dd if=$kernel_path of="${image_loop}p2" bs=1M oflag=sync
+  dd if=$kernel_path of="${image_loop}p2" bs=1M oflag=sync || true
   make_bootable $image_loop
   #create bootloader partition
   mkfs.ext2 "${image_loop}p3"

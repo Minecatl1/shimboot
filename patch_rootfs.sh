@@ -79,9 +79,9 @@ echo "downloading misc firmware"
 copy_firmware $target_rootfs
 
 echo "unmounting and cleaning up"
-umount $shim_rootfs
-umount $reco_rootfs
-losetup -d $shim_loop
-losetup -d $reco_loop
+umount $shim_rootfs || true
+umount $reco_rootfs || true
+losetup -d $shim_loop || true
+losetup -d $reco_loop || true
 
 echo "done"

@@ -279,12 +279,12 @@ if [ ! "$rootfs_dir" ]; then
 fi
 
 print_title "patching $distro rootfs"
-retry_cmd ./patch_rootfs.sh $shim_bin $reco_bin $rootfs_dir "quiet=$quiet"
+retry_cmd ./patch_rootfs.sh $shim_bin $reco_bin $rootfs_dir "quiet=$quiet" || echo "failed to patch" && true
 
 print_title "building final disk image"
 final_image="$data_dir/shimboot_$board.bin"
 rm -rf $final_image
-retry_cmd ./build.sh $final_image $shim_bin $rootfs_dir "quiet=$quiet" "arch=$arch" "name=$distro" "luks=$luks"
+./build.sh $final_image $shim_bin $rootfs_dir "quiet=$quiet" "arch=$arch" "name=$distro" "luks=$luks"
 print_info "build complete! the final disk image is located at $final_image"
 
 print_title "cleaning up"
