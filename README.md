@@ -118,7 +118,27 @@ PRs and contributions are welcome to help implement these features.
 2. Clone this repository and cd into it.
 3. Run `sudo ./build_complete.sh <board_name>` to download the required data and build the disk image. 
 
-Note: If you are building for an ARM Chromebook, you need the `qemu-user-static` and `binfmt-support` packages.
+#### Docker Build Environment
+You can also build Shimboot from a Docker image that contains the required host-side build dependencies. The build still needs privileged container access because Shimboot creates loop devices, mounts filesystems, and uses chroots.
+
+```bash
+docker build -t shimboot-builder .
+docker run --rm --privileged -v "$PWD/data:/data" shimboot-builder <board_name> quiet=1
+```
+
+The container stores downloads, rootfs work directories, and final images in the mounted `data` directory by default. You can pass any `build_complete.sh` `key=value` option after the board name, for example:
+
+```bash
+docker run --rm --privileged -v "$PWD/data:/data" shimboot-builder dedede distro=alpine quiet=1
+```
+
+If you need an interactive shell in the builder image, run:
+
+```bash
+docker run --rm -it --privileged -v "$PWD/data:/data" shimboot-builder bash
+```
+
+Note: If you are building for an ARM Chromebook, you need the `qemu-user-static` and `binfmt-support` packages. The Docker image installs these packages for cross-architecture rootfs builds, but the container must still be run with `--privileged` so binfmt and mount operations work correctly.
 
 [Prebuilt images](https://github.com/ading2210/shimboot/releases) are available if you don't have a suitable device to run the build on.
 

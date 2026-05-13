@@ -1,0 +1,52 @@
+#!/bin/bash
+set -euo pipefail
+
+show_help() {
+  cat <<'HELP'
+Usage:
+  docker run --rm --privileged -v "$PWD/data:/data" shimboot-builder BOARD [key=value ...]
+  docker run --rm --privileged -v "$PWD/data:/data" shimboot-builder ./build_complete.sh BOARD [key=value ...]
+
+The container runs Shimboot's build_complete.sh by default and stores downloads,
+rootfs work directories, and final images in /data unless you pass your own
+data_dir=... argument. The build requires --privileged because Shimboot creates
+loop devices, mounts filesystems, and enters chroots.
+
+Examples:
+  docker build -t shimboot-builder .
+  docker run --rm --privileged -v "$PWD/data:/data" shimboot-builder dedede quiet=1
+  docker run --rm --privileged -v "$PWD/data:/data" shimboot-builder dedede distro=alpine quiet=1
+
+Pass any build_complete.sh key=value option after BOARD.
+HELP
+}
+
+if [[ $# -eq 0 || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  show_help
+  exit 0
+fi
+
+if [[ "${1:-}" == "./build_complete.sh" || "${1:-}" == "build_complete.sh" ]]; then
+  shift
+  if [[ $# -eq 0 ]]; then
+    show_help
+    exit 0
+  fi
+elif [[ "${1:-}" == "bash" || "${1:-}" == "sh" || "${1:-}" == /* || "${1:-}" == ./* ]]; then
+  exec "$@"
+fi
+
+has_data_dir=0
+for arg in "$@"; do
+  if [[ "$arg" == data_dir=* ]]; then
+    has_data_dir=1
+    break
+  fi
+done
+
+extra_args=()
+if [[ "$has_data_dir" -eq 0 ]]; then
+  extra_args+=("data_dir=/data")
+fi
+
+exec ./build_complete.sh "$@" "${extra_args[@]}"
